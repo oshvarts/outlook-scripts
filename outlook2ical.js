@@ -21,7 +21,7 @@ var exportMode = "not";                          // "all"  - to export ALL entri
 // "only" - to export ONLY those categories listed; 
 
 var includeHistory = 5;          // how many days back to include old events
-var icsFilename = "C:\\calendar.ics";  // where to store the file
+var icsFilename = "C:\\Public\\calendar.ics";  // where to store the file
 
 
 var linebreak = "\r\n";
@@ -156,6 +156,7 @@ function createEvent(item, notRecurring) {
     var event = "BEGIN:VEVENT" + linebreak;
 	
     if (item.alldayevent == true) {
+	    event += "DTSTAMP;VALUE=DATE:" + formatDate(item.start) + "T000000" + linebreak;
         event += "DTSTART;VALUE=DATE:" + formatDate(item.start) + linebreak;
         if (item.isrecurring == false) {
             event += "DTEND;VALUE=DATE:" + formatDate(item.end) + linebreak;
@@ -163,6 +164,7 @@ function createEvent(item, notRecurring) {
 		} else {
             //event += "// " + item.StartInStartTimeZone + "\n";
         event += "DTSTART:" + formatDateTime(item.start) + linebreak;
+		event += "DTSTAMP:" + formatDateTime(item.start) + linebreak;
         event += "DTEND:" + formatDateTime(item.end) + linebreak;
 	}
 	
