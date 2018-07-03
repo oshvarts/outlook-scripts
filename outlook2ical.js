@@ -86,7 +86,23 @@ var ics = "BEGIN:VCALENDAR" + linebreak +
 	"VERSION:2.0" + linebreak +
 	"PRODID:-//Google Inc//Google Calendar 70.9054//EN" + linebreak +
 	"METHOD:PUBLISH" + linebreak +
-	"CALSCALE:GREGORIAN" + linebreak + linebreak;
+	"CALSCALE:GREGORIAN" + linebreak + linebreak +
+	"BEGIN:VTIMEZONE" + 
+	"TZID:America/New_York" + linebreak +
+	"LAST-MODIFIED:20050809T050000Z" + linebreak +
+	"BEGIN:STANDARD" + linebreak +
+	"DTSTART:20071104T020000" + linebreak +
+	"TZOFFSETFROM:-0400" + linebreak +
+	"TZOFFSETTO:-0500" + linebreak +
+	"TZNAME:EST" + linebreak +
+	"END:STANDARD" + linebreak +
+	"BEGIN:DAYLIGHT" + linebreak +
+	"DTSTART:20070311T020000" + linebreak +
+	"TZOFFSETFROM:-0500" + linebreak +
+	"TZOFFSETTO:-0400" + linebreak +
+	"TZNAME:EDT" + linebreak +
+	"END:DAYLIGHT" + linebreak +
+	"END:VTIMEZONE" + linebreak + linebreak;
 
 var ol = new ActiveXObject("outlook.application");
 var calendar = ol.getnamespace("mapi").getdefaultfolder(olFolderCalendar).items;
@@ -130,10 +146,14 @@ for (var i=1; i<=total; i++) {
 	
     if (exportItem) {
         if (!item.isrecurring) {
-            var date = new Date(item.end);
-            if (Math.round(((today - date) / (86400000))) > includeHistory) { continue; }
+            var endDate = new Date(item.end);
+            if (Math.round(((today - endDate) / (86400000))) > includeHistory) { continue; }
 		}
-        ics += createEvent(item, false);
+        if (item.isrecurring) {
+            var endDate = new Date(item.getrecurrencepattern.patternenddate); // abracadabra
+            if (Math.round(((today - endDate) / (86400000))) > includeHistory) { continue; }
+		}
+		ics += createEvent(item, false);
 	}
 	item.close(false);
 	item = null; 
@@ -142,7 +162,7 @@ for (var i=1; i<=total; i++) {
 ics += "END:VCALENDAR" + linebreak + linebreak;
 
 var fso = new ActiveXObject("Scripting.FileSystemObject");
-var icsFH = fso.CreateTextFile(icsFilename, true, true);
+var icsFH = fso.CreateTextFile(icsFilename, true, false);
 icsFH.Write(ics);
 icsFH.Close();
 
@@ -161,7 +181,8 @@ function createEvent(item, notRecurring) {
         if (item.isrecurring == false) {
             event += "DTEND;VALUE=DATE:" + formatDate(item.end) + linebreak;
 		}
-		} else {
+	} 
+	else {
             //event += "// " + item.StartInStartTimeZone + "\n";
         event += "DTSTART:" + formatDateTime(item.start) + linebreak;
 		event += "DTSTAMP:" + formatDateTime(item.start) + linebreak;
@@ -355,7 +376,7 @@ function createReoccuringEvent(item) {
 			
 			firstExcept = false;
 		}
-		recurEvent += "\n";
+		recurEvent += linebreak;
 		
 	}
 	
@@ -487,7 +508,7 @@ function cleanLineEndings(string) {
 }
 
 function optionalOrganizer (organizer) {
-	if (organizer == "Shvartsman, Oleg (O.I.)" )
+	if (organizer == "" ) // "me" if not needed on every event
 	{
 		return "";
 	}
