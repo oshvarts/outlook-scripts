@@ -21,7 +21,7 @@ var exportMode = "not";                          // "all"  - to export ALL entri
 // "only" - to export ONLY those categories listed; 
 
 var includeHistory = 5;          // how many days back to include old events
-var icsFilename = "c:\\Public\\calendar.ics";  // where to store the file
+var icsFilename = "C:\\calendar.ics";  // where to store the file
 
 
 var linebreak = "\r\n";
@@ -84,7 +84,7 @@ var olConfidential = 3;
 
 var ics = "BEGIN:VCALENDAR" + linebreak +
 	"VERSION:2.0" + linebreak +
-//	"PRODID:-//Google Inc//Google Calendar 70.9054//EN" + linebreak +
+	"PRODID:-//Google Inc//Google Calendar 70.9054//EN" + linebreak +
 	"METHOD:PUBLISH" + linebreak +
 	"CALSCALE:GREGORIAN" + linebreak + linebreak;
 
@@ -271,7 +271,7 @@ function createReoccuringEvent(item) {
         if (pattern.noenddate != true) {
             recurEvent += ";UNTIL=" + formatDateTime(pattern.patternenddate);
 		}
-        recurEvent += ";INTERVAL=" + pattern.interval;
+        recurEvent += getInterval(pattern.interval);
         recurEvent += ";BYMONTHDAY=" + pattern.dayofmonth;
 		
 		} else if (patternType == olRecursMonthNth) {
@@ -281,7 +281,7 @@ function createReoccuringEvent(item) {
             recurEvent += ";UNTIL=" + formatDateTime(pattern.patternenddate);
 		}
 		
-        recurEvent += ";INTERVAL=" + pattern.interval;
+        recurEvent += getInterval(pattern.interval);
         // php-icalendar has a bug for monthly recurring events.  If
         // it is the last day of the month, you can't use the
         // BYDAY=-1SU option, unless you also do the BYMONTH option
@@ -301,7 +301,7 @@ function createReoccuringEvent(item) {
         if (pattern.noenddate != true) {
             recurEvent += ";UNTIL=" + formatDateTime(pattern.patternenddate);
 		}
-        recurEvent += ";INTERVAL=" + pattern.interval;
+        recurEvent += getInterval(pattern.interval);
         recurEvent += ";BYDAY=" + daysOfWeek("", pattern);
 		
 		} else if (patternType == olRecursYearly) {
@@ -527,6 +527,6 @@ function randInt(min, max)
 function getInterval(interval)
 {
 	if (0 == interval)
-	return "";
+	{ return ""; }
 	return ";INTERVAL=" + interval;
 }
