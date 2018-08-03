@@ -51,6 +51,13 @@ Private Sub Items_ItemAdd(ByVal Item As Object)
         Appt.ReminderSet = False
         Appt.Save
         log ("Saved")
+    ElseIf Appt.AllDayEvent = False And Appt.ReminderSet = True And Appt.Duration = 60 * 24 Then
+       ' 24-hour meeting, all-day equivalent meeting in another time zone.
+        log ("Clearing reminder for 24-hour meeting")
+        log (Appt.Duration + " minutes")
+        Appt.ReminderSet = False
+        Appt.Save
+        log ("Saved")                    
     ElseIf Appt.AllDayEvent = False And Appt.ReminderSet = False Then
        'msgbox block - 3 lines
        'If MsgBox("Do you want to change the reminder to 15 minutes?", vbYesNo) = vbNo Then
