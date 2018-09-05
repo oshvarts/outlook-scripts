@@ -8,9 +8,11 @@
 // additional fixes by
 // Andrew Johnson, Alastair Rankine, Dane Walther, Zan Hecht, Markus Untera
 
-// // version 2.0 (2018)
+// // version 2.2 (2018)
 
 // Lots of changes by Oleg Shvartsman.
+
+
 
 // configuration --------------------------------------------------------
 
@@ -22,35 +24,13 @@ var exportMode = "not";                          // "all"  - to export ALL entri
 
 var includeHistory = 5;          // how many days back to include old events
 var icsFilename = "C:\\Public\\calendar.ics";  // where to store the file
-
-
 var linebreak = "\r\n";
 
-// Outlook Redemption works around limitations imposed by the Outlook
-// Security Patch and Service Pack 2 of MS Office 98/2000 and Office
-// 2002 and 2003 (which include Security Patch).
-// 
-// In our case, the 'body' object for the calendar items - the
-// 'description' in the ics files is protected by default and Outlook
-// will prompt you to allow access when the script is run.  If you
-// install Redemption, available at
-//
-//   http://www.dimastr.com/redemption/
-//
-// then you can avoid this issue and automate running this script.
-//
-// If you cant install Redemption and want to include the
-// body/description for the calendar items, despite the promoting from
-// Outlook, set includeBody to true.  If this script finds Redemption
-// is installed, it will set includeBody to true. 
-
-// Note -- September 2016, Redemption seems to have no effect.  Outlook still prompts for 
-// confirmation.
-
+// If antivirus is not running or installed, switch this to false, otherwise outlook will 
+// prompt for confirmation every time.
 var includeBody = true;
 
 // if you wish to include reminders with your ical items, set this to 'true'
-
 var includeAlarm = true;
 
 // ----------------------------------------------------------------------
@@ -111,26 +91,11 @@ var today = new Date();
 var total = calendar.Count;  
 var exportItem = true;
 //alert ("Total " + total + " items."); 
-// if (total > 275) {total = 270);
+//if (total > 0) {total = 60;}
 
 for (var i=1; i<=total; i++) {
 	
-    try {
-        var rItem = calendar(i);
-		var item = new ActiveXObject("Redemption.SafeMeetingItem");
-        item.item = rItem;
-        includeBody = true;
-		} catch(e) {
-		var item = calendar(i);
-	}
-	
-    try {
-        var m = item.categories;
-		} catch(e) {
-		//     ignore
-	}
-	
-	
+	var item = calendar(i);
 	
     if ((exportMode == "not") || (exportMode == "only")) {
         
@@ -163,7 +128,7 @@ ics += "END:VCALENDAR" + linebreak + linebreak;
 
 var fso = new ActiveXObject("Scripting.FileSystemObject");
 var icsFH = fso.CreateTextFile(icsFilename, true, false);
-icsFH.Write(ics);
+icsFH.WriteLine(ics);
 icsFH.Close();
 
 WScript.Quit();
@@ -508,7 +473,7 @@ function cleanLineEndings(string) {
 }
 
 function optionalOrganizer (organizer) {
-	if (organizer == "" ) // "me" if not needed on every event
+	if (organizer == "me" )
 	{
 		return "";
 	}
@@ -526,7 +491,7 @@ function getOptionalBody(item)
 	
 	if (null == item.body.match(/webex/ig))
 		return "(removed)";
-	
+
 	return cleanLineEndings(item.body);
 	
 }
