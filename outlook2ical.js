@@ -462,6 +462,7 @@ function cleanBadCharacters(string) {
 	string = string.replace(/\n\n/g, '\n');
 	string = string.replace(/\n/g, '\\n');
 	string = string.replace(/,/g, '\,');
+	string = string.replace ("\ud83d\ude0a", ''); 
 	string = string.replace ("\ud83d", ''); 
 	string = string.replace ("\ude0a", '');
 	string = string.replace (
