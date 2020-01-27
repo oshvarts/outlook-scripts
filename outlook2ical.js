@@ -462,8 +462,9 @@ function cleanBadCharacters(string) {
 	string = string.replace(/\n\n/g, '\n');
 	string = string.replace(/\n/g, '\\n');
 	string = string.replace(/,/g, '\,');
-	string = string.replace ("\uD83D\uDE0A", '');
-    string = string.replace (
+	string = string.replace ("\ud83d", ''); 
+	string = string.replace ("\ude0a", '');
+	string = string.replace (
 	        "\\n\\nNOTICE; This meeting may include the option for video. The recording of meetings is prohibited. For company policies on using video; click here <https://www.digitalworker.ford.com/SitePages/ContentItem.aspx?itemID=739> \\n\\n\\nFor additional help with WebEx, Ford users can click on the Digital Worker link; WebEx Support <https://www.digitalworker.ford.com/SitePages/ContentItem.aspx?itemID=739> \\n\\nCan't join the meeting? Contact support. <https://collaborationhelp.cisco.com/tutorial/article/en-us/nd3hy1bb> \\n\\n\\nT32MC04 \\n\\n \\n\\n"
 	, '');
 
