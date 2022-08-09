@@ -8,7 +8,7 @@
 // additional fixes by
 // Andrew Johnson, Alastair Rankine, Dane Walther, Zan Hecht, Markus Untera
 
-// // version 2.2 (2019)
+// // version 2.3 (2022)
 
 // Lots of changes by @oshvarts.
 
@@ -97,13 +97,9 @@ var exportItem = true;
 //if (total > 600) {total = 600;}
 
 for (var i = 1; i <= total; i++) {
-
-	var item = calendar(i);
-
+	var item = calendar(i);  // AppointmentItem  object or  MeetingItem object
 	if ((exportMode == "not") || (exportMode == "only")) {
-
 		exportItem = (exportMode == "not") ? true : false; // setup default
-
 		for (var j = 0; j < categories.length; j++) {
 			if ((null != item.categories) && (item.categories.indexOf(categories[j]) != -1)) {  // category found on item
 				exportItem = (exportMode == "only") ? true : false;
@@ -134,6 +130,24 @@ var icsFH = fso.CreateTextFile(icsFilename, true, true);
 icsFH.WriteLine(ics);
 icsFH.Close();
 
+// fso.CreateTextFile creates a file in utf-16 format and has no utf-8 option. 
+// So, convert the file from utf-16 to utf-8. 
+var sr = new ActiveXObject("ADODB.Stream");
+sr.Type = 2;				// adTypeText
+sr.charset = "utf-16";
+sr.Open();
+sr.LoadFromFile(icsFilename);
+var txt = sr.ReadText(-1);		// adReadAll
+sr.Close();
+
+var sw = new ActiveXObject("ADODB.Stream");
+sw.Type = 2;				// adTypeText
+sw.charset = "utf-8";
+sw.Open();
+sw.WriteText(txt, 1);			// adWriteLine
+sw.SaveToFile(icsFilename, 2);	   	// adSaveCreateOverWrite
+sw.Close();
+
 WScript.Quit();
 
 ///////  END FILE.
@@ -144,7 +158,7 @@ function createEvent(item, notRecurring) {
 	var event = "BEGIN:VEVENT" + linebreak;
 
 	if (item.alldayevent == true) {
-		//event += "DTSTAMP;VALUE=DATE:" + formatDate(item.start) + "T000000" + linebreak;
+		//event += "DTSTAMP:19970901T130000Z" +  linebreak;
 		event += "DTSTART;VALUE=DATE:" + formatDate(item.start) + linebreak;
 		if (item.isrecurring == false) {
 			event += "DTEND;VALUE=DATE:" + formatDate(item.end) + linebreak;
@@ -152,8 +166,8 @@ function createEvent(item, notRecurring) {
 	}
 	else {
 		//event += "// " + item.StartInStartTimeZone + "\n";
+		//event += "DTSTAMP:19970901T130000Z" +  linebreak;
 		event += "DTSTART;TZID=America/New_York:" + formatDateTime(item.start) + linebreak;
-		//event += "DTSTAMP;TZID=America/New_York:" + formatDateTime(item.start) + linebreak;
 		event += "DTEND;TZID=America/New_York:" + formatDateTime(item.end) + linebreak;
 	}
 
@@ -167,7 +181,13 @@ function createEvent(item, notRecurring) {
 		WScript.Quit();
 	}
 
-	event += "SUMMARY:" + cleanBadCharacters(item.subject) + linebreak;
+	if (item.BusyStatus == 1) {  //1 == OlBusyStatus.olTentative
+		event += "SUMMARY:??" + cleanBadCharacters(item.subject) + linebreak;
+	}
+	else {
+		event += "SUMMARY:" + cleanBadCharacters(item.subject) + linebreak;
+	}
+	
 	event += "UID:" + item.entryid;
 
 	if (notRecurring == true) { event += "-" + randInt(0, 100000); }
@@ -224,9 +244,6 @@ function createEvent(item, notRecurring) {
 			}
 		}
 	}
-
-
-
 	return event;
 }
 
@@ -465,7 +482,7 @@ function cleanBadCharacters(string) {
 	string = string.replace ("\ud83d\ude0a", ''); 
 	string = string.replace ("\ud83d", ''); 
 	string = string.replace ("\ude0a", '');
-	string = string.replace (
+    string = string.replace (
 	        "\\n\\nNOTICE; This meeting may include the option for video. The recording of meetings is prohibited. For company policies on using video; click here <https://www.digitalworker.ford.com/SitePages/ContentItem.aspx?itemID=739> \\n\\n\\nFor additional help with WebEx, Ford users can click on the Digital Worker link; WebEx Support <https://www.digitalworker.ford.com/SitePages/ContentItem.aspx?itemID=739> \\n\\nCan't join the meeting? Contact support. <https://collaborationhelp.cisco.com/tutorial/article/en-us/nd3hy1bb> \\n\\n\\nT32MC04 \\n\\n \\n\\n"
 	, '');
 
@@ -516,3 +533,4 @@ function getInterval(interval) {
 	if (0 == interval) { return ""; }
 	return ";INTERVAL=" + interval;
 }
+
