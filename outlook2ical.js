@@ -125,28 +125,20 @@ for (var i = 1; i <= total; i++) {
 
 ics += "END:VCALENDAR" + linebreak + linebreak;
 
+var sw = new ActiveXObject("ADODB.Stream");
+sw.Type = 2;				// adTypeText
+sw.charset = "UTF-8";
+sw.Open();
+sw.WriteText(ics, 1);			// adWriteLine
+sw.SaveToFile(icsFilename, 2);	   	// adSaveCreateOverWrite
+sw.Close();
+
+/*
 var fso = new ActiveXObject("Scripting.FileSystemObject");
 var icsFH = fso.CreateTextFile(icsFilename, true, true);
 icsFH.WriteLine(ics);
 icsFH.Close();
-
-// fso.CreateTextFile creates a file in utf-16 format and has no utf-8 option. 
-// So, convert the file from utf-16 to utf-8. 
-var sr = new ActiveXObject("ADODB.Stream");
-sr.Type = 2;				// adTypeText
-sr.charset = "utf-16";
-sr.Open();
-sr.LoadFromFile(icsFilename);
-var txt = sr.ReadText(-1);		// adReadAll
-sr.Close();
-
-var sw = new ActiveXObject("ADODB.Stream");
-sw.Type = 2;				// adTypeText
-sw.charset = "utf-8";
-sw.Open();
-sw.WriteText(txt, 1);			// adWriteLine
-sw.SaveToFile(icsFilename, 2);	   	// adSaveCreateOverWrite
-sw.Close();
+*/
 
 WScript.Quit();
 
